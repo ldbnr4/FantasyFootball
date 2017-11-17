@@ -1,12 +1,8 @@
-import json
-import requests
+# import requests
+import re
+import sys
 import urllib2
 
-import re
-
-import pickle
-
-import copy
 from bs4 import BeautifulSoup
 
 NFL_PROVIDER = 'nfl'
@@ -16,6 +12,7 @@ NFL_PLAYERS_URL = NFL_BASE_URL + 'players?playerStatus=available&statCategory=pr
 
 NUMBER_FIRE_PROVIDER = 'number fire'
 NUMBER_FIRE_BASE_URL = 'https://www.numberfire.com/nfl/fantasy/fantasy-football-projections'
+NUMBER_FIRE_FILE = 'projections/number_fire.html'
 
 FANTASY_PROS_PROVIDER = 'fantasy pros'
 FANTASY_PROS_BASE_URL = 'https://www.fantasypros.com/nfl/projections/'
@@ -23,7 +20,6 @@ FANTASY_PROS_BASE_URL = 'https://www.fantasypros.com/nfl/projections/'
 MY_TEAM_FILE = 'players/mine.html'
 TAKE_PLAYERS_FILE = 'players/taken/taken_page_%d.html'
 AVAILABLE_PLAYERS_FILE = 'players/available/available_page_%d.html'
-IR_PLAYERS_FILE = 'ir_players.json'
 
 
 class Projections:
@@ -33,13 +29,13 @@ class Projections:
         self.pros = 0
 
     def set_nfl(self, projection):
-        self.nfl = projection
+        self.nfl = float(projection)
 
     def set_number_fire(self, projection):
-        self.number_fire = projection
+        self.number_fire = float(projection)
 
     def set_pros(self, projection):
-        self.pros = projection
+        self.pros = float(projection)
 
 
 class Player:
@@ -77,7 +73,7 @@ def is_table_row(tag):
     return tag.has_attr('data-row-index')
 
 
-def build_nfl_player_with_projections(_soup, _current_week, _map, individual=False):
+def build_nfl_player_with_projections(_soup, _current_week, _map, individual=False, lower_bound=sys.float_info.min):
     _not_playing = []
     if re.match("\d", _current_week) is None:
         raise Exception("Bad week")
@@ -124,7 +120,8 @@ def build_nfl_player_with_projections(_soup, _current_week, _map, individual=Fal
         new_player = Player(player_name, player_position, player_team)
         new_player.add_projections(_current_week, NFL_PROVIDER, projected_points)
         _map[player_name] = new_player
-        new_player, player_name, player_team, player_position, projected_points = None, None, None, None, None
+        if sum(map(lambda _p: _p.projections[int(current_week)].nfl, _map.viewvalues())) / len(_map) < lower_bound:
+            return _not_playing
     # print len(_map)
     return _not_playing
 
@@ -134,48 +131,53 @@ try:
         html_doc = infile.read()
         infile.close()
 except IOError:
-    print "Retrieving my team's web page..."
+    print "Downloading my team's web page..."
     html_doc = urllib2.urlopen(NFL_TEAM_URL % 1).read()
     with open(MY_TEAM_FILE, 'w') as outfile:
         outfile.write(html_doc)
         outfile.close()
+# print "Building my team with nfl projections..."
 soup = BeautifulSoup(html_doc, 'html.parser')
 my_team = {}
 current_week = soup.find("div", class_="stat-type-nav").find("li", class_="selected").find("span", class_="text").string
 if re.match("\d+", current_week) is None:
     raise Exception("Bad week")
 not_playing = build_nfl_player_with_projections(soup, current_week, my_team, True)
-len_ = len(my_team)
-if len_ is not 15:
+len_my_team = len(my_team)
+if len_my_team is not 15:
     print "Houston, Fix your roster!"
-print "My team has %d players!" % len_
+nlf_team_projections = map(lambda _p: _p.projections[int(current_week)].nfl, my_team.viewvalues())
+team_ave = sum(nlf_team_projections)/len_my_team
+team_lower_bound = min(nlf_team_projections)
+print "My nfl team average is %.2f this week! With a lower bound of %.2f" % (team_ave, team_lower_bound)
 
-taken_players_files = []
-try:
-    for i in range(2, 11):
-        with open(TAKE_PLAYERS_FILE % i) as infile:
-            taken_players_files.append(infile.read())
-            infile.close()
-except IOError:
-    print "Retrieving my opponent teams web pages..."
-    for i in range(2, 11):
-        html_doc = urllib2.urlopen(NFL_TEAM_URL % i).read()
-        taken_players_files.append(html_doc)
-        with open(TAKE_PLAYERS_FILE % i, 'w') as outfile:
-            outfile.write(html_doc)
-            outfile.close()
-taken_players = {}
-for i in range(0, 9):
-    soup = BeautifulSoup(taken_players_files[i], 'html.parser')
-    current_week = soup.find("div", class_="stat-type-nav").find("li", class_="selected").find("span",
-                                                                                               class_="text").string
-    result = build_nfl_player_with_projections(soup, current_week, taken_players, True)
-    for p in result:
-        not_playing.append(p)
-len_taken = len(taken_players)
-print "There are %d taken active players!" % len_taken
-if len_taken + len(not_playing) is not 135:
-    print "Houston, someone does not a have a full roster!"
+
+# taken_players_files = []
+# try:
+#     for i in range(2, 11):
+#         with open(TAKE_PLAYERS_FILE % i) as infile:
+#             taken_players_files.append(infile.read())
+#             infile.close()
+# except IOError:
+#     print "Downloading my opponent teams web pages..."
+#     for i in range(2, 11):
+#         html_doc = urllib2.urlopen(NFL_TEAM_URL % i).read()
+#         taken_players_files.append(html_doc)
+#         with open(TAKE_PLAYERS_FILE % i, 'w') as outfile:
+#             outfile.write(html_doc)
+#             outfile.close()
+# taken_players = {}
+# for i in range(0, 9):
+#     soup = BeautifulSoup(taken_players_files[i], 'html.parser')
+#     current_week = soup.find("div", class_="stat-type-nav").find("li", class_="selected").find("span",
+#                                                                                                class_="text").string
+#     result = build_nfl_player_with_projections(soup, current_week, taken_players, True)
+#     for p in result:
+#         not_playing.append(p)
+# len_taken = len(taken_players)
+# print "There are %d taken active players!" % len_taken
+# if len_taken + len(not_playing) is not 135:
+#     print "Houston, someone does not a have a full roster!"
 
 available_players_files = []
 try:
@@ -184,7 +186,7 @@ try:
             available_players_files.append(infile.read())
             infile.close()
 except IOError:
-    print "Retrieving available players pages..."
+    print "Downloading available players pages..."
     for i in range(0, 6):
         offset = i * 25
         html_doc = urllib2.urlopen(NFL_PLAYERS_URL % offset).read()
@@ -197,37 +199,66 @@ for i in range(0, 6):
     soup = BeautifulSoup(available_players_files[i], 'html.parser')
     current_week = soup.find("div", class_="stat-type-nav").find("li", class_="selected").find("span",
                                                                                                class_="text").string
-    result = build_nfl_player_with_projections(soup, current_week, available_players, False)
+    result = build_nfl_player_with_projections(soup, current_week, available_players, False, team_lower_bound)
     for p in result:
         not_playing.append(p)
-map_length = len(available_players)
-print "There are %d available players!" % map_length
+available_len = len(available_players)
+available_ave = sum(map(lambda _p: _p.projections[int(current_week)].nfl, available_players.viewvalues()))/available_len
+print "The available nfl average is %.2f this week!" % available_ave
 
-html_doc = urllib2.urlopen(NUMBER_FIRE_BASE_URL).read()
+try:
+    with open(NUMBER_FIRE_FILE) as input_file:
+        html_doc = input_file.read()
+        input_file.close()
+except IOError:
+    print "Downloading NumberFire web page..."
+    html_doc = urllib2.urlopen(NUMBER_FIRE_BASE_URL).read()
+    with open(NUMBER_FIRE_FILE, 'w') as outfile:
+        outfile.write(html_doc)
+        outfile.close()
 soup = BeautifulSoup(html_doc, 'html.parser')
+current_week = int(soup.find("div", class_="projection-rankings__hed").find("h2").string.strip().split(" ")[1])
 names = True
+nf_my_names = {}
+# nf_taken_names = {}
+nf_available_names = {}
+values = []
 for row in soup(is_table_row):
-    # print row
     current_index = int(row["data-row-index"])
-    if current_index > map_length:
+    if current_index > available_len + 135 + len_my_team:
         names = False
         continue
     if names:
         nf_name = row.find("span", class_='full').string
         _buffer = nf_name.split(" ")
         nf_name = _buffer[0] + " " + _buffer[1]
-        player = None
-        if nf_name in available_players:
-            player = available_players[nf_name]
-        if nf_name in taken_players:
-            player = taken_players[nf_name]
         if nf_name in my_team:
-            player = my_team[nf_name]
-        if player is None:
-            print "Unknown player %s. I should probably create him" % nf_name
+            nf_my_names[current_index] = nf_name
+        elif nf_name in available_players:
+            nf_available_names[current_index] = nf_name
+        else:
+            continue
+            print "Unknown player %s. I might want to create him" % nf_name
     else:
-        print row
-
+        if current_index in nf_my_names:
+            player = my_team[nf_my_names[current_index]]
+        elif current_index in nf_available_names:
+            player = available_players[nf_available_names[current_index]]
+        else:
+            continue
+        value = float(row.find("td", class_="nf_fp").string)
+        values.append(value)
+        nf_team_projections = map(lambda _p: _p.projections[int(current_week)].number_fire, my_team.viewvalues())
+        nf_team_projections.append(team_lower_bound)
+        team_lower_bound = min(i for i in nf_team_projections if i > 0)
+        # print min(values)
+        values_ave = sum(values)/len(values)
+        if values_ave < team_lower_bound:
+            break
+        player.add_projections(current_week, NUMBER_FIRE_PROVIDER, value)
+nf_team_ave = sum(map(lambda _p: _p.projections[int(current_week)].number_fire, my_team.viewvalues()))/len_my_team
+print "My numberFire team average is %.2f this week! With a lower bound of %.2f" % (nf_team_ave, team_lower_bound)
+print "The available numberFire average is %.2f this week!" % values_ave
 
 # html_doc = requests.get(FANTASY_PROS_BASE_URL+'rb.php', stream=True).text
 # soup = BeautifulSoup(html_doc, 'html.parser')
