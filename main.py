@@ -61,7 +61,7 @@ def execute_main():
     nfl_file = 'projections/nfl/%s/page_%d.html'
     week_docs = {}
     ros_docs = {}
-    start_time = timeit.default_timer()
+    # start_time = timeit.default_timer()
     # code you want to evaluate
     try:
         for i in range(0, NUM_PAGES):
@@ -75,7 +75,7 @@ def execute_main():
                 ros_file.close()
 
     except IOError:
-        print "Downloading nfl's pages..."
+        # print "Downloading nfl's pages..."
         week_url = 'http://fantasy.nfl.com/league/6009432/players?playerStatus=all&position=O&statCategory=projectedStats' \
                    '&offset=%d'
         ros_url = "%s&statType=restOfSeasonProjectedStats" % week_url
@@ -95,11 +95,11 @@ def execute_main():
                 ros_file.close()
             offset = (25 * i) + 26
 
-        elapsed = timeit.default_timer() - start_time
-        print "That took about %.2f sec" % elapsed
+        # elapsed = timeit.default_timer() - start_time
+        # print "That took about %.2f sec" % elapsed
 
-    print "Crawling nfl's pages and building Players dictionary..."
-    start_time = timeit.default_timer()
+    # print "Crawling nfl's pages and building Players dictionary..."
+    # start_time = timeit.default_timer()
     for i in range(0, NUM_PAGES):
         # NFL week soup
         week_soup = BeautifulSoup(week_docs[i], 'html.parser')
@@ -110,19 +110,19 @@ def execute_main():
 
         ros_soup = BeautifulSoup(ros_docs[i], 'html.parser')
         execute(ros_soup, 'ros')
-    print "Done with NFL!"
-    elapsed = timeit.default_timer() - start_time
-    print "That took about %.2f sec" % elapsed
+    # print "Done with NFL!"
+    # elapsed = timeit.default_timer() - start_time
+    # print "That took about %.2f sec" % elapsed
 
     start_time = timeit.default_timer()
     crawl_number(Players)
-    elapsed = timeit.default_timer() - start_time
-    print "That took about %.2f sec" % elapsed
+    # elapsed = timeit.default_timer() - start_time
+    # print "That took about %.2f sec" % elapsed
 
     start_time = timeit.default_timer()
     crawl_pros(Players)
-    elapsed = timeit.default_timer() - start_time
-    print "That took about %.2f sec" % elapsed
+    # elapsed = timeit.default_timer() - start_time
+    # print "That took about %.2f sec" % elapsed
 
     players_json_array = []
     for player in Players:
@@ -130,12 +130,16 @@ def execute_main():
     with open(FILE_PATH, 'w') as outfile:
         json.dump(players_json_array, outfile)
         outfile.close()
-    print "Done with everything!"
+    # print "Done with everything!"
 
 
 try:
-    with open(FILE_PATH) as file_:
-        file_.close()
-        print "File already made today!"
+    scraped = open(FILE_PATH)
 except IOError:
     execute_main()
+    scraped = open(FILE_PATH)
+
+print scraped.read()
+scraped.close()
+
+

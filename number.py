@@ -45,7 +45,7 @@ def crawl_number(players):
             ros_doc = ros_file.read()
             ros_file.close()
     except IOError:
-        print "Downloading NumberFire's web pages..."
+        # print "Downloading NumberFire's web pages..."
         week_doc = urllib2.urlopen(WEEK_URL).read()
         with open(WEEK_FILE, 'w') as week_file:
             week_file.write(week_doc)
@@ -56,10 +56,10 @@ def crawl_number(players):
             ros_file.write(ros_doc)
             ros_file.close()
 
-    print "Crawling NumberFire's week and rest of the season pages..."
+    # print "Crawling NumberFire's week and rest of the season pages..."
     wk_soup = BeautifulSoup(week_doc, 'html.parser')
     current_week = int(wk_soup.find("div", class_="projection-rankings__hed").find("h2").string.strip().split(" ")[1])
     execute(wk_soup, current_week, players)
     ros_soup = BeautifulSoup(ros_doc, 'html.parser')
     execute(ros_soup, 'ros', players)
-    print "Done with NumberFire"
+    # print "Done with NumberFire"

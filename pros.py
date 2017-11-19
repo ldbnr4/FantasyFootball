@@ -39,7 +39,7 @@ def crawl_pros(players):
                 ros_docs[pos] = ros_file.read()
                 ros_file.close()
     except IOError:
-        print "Downloading FantasyPros' web pages..."
+        # print "Downloading FantasyPros' web pages..."
         for pos in POSITIONS:
             week_doc = requests.get(WEEK_URL % pos, stream=True).text
             week_docs[pos] = week_doc
@@ -53,7 +53,7 @@ def crawl_pros(players):
                 ros_file.write(ros_doc)
                 ros_file.close()
 
-    print "Crawling FantasyPros's week and rest of the season pages..."
+    # print "Crawling FantasyPros's week and rest of the season pages..."
     for pos in POSITIONS:
         wk_soup = BeautifulSoup(week_docs[pos], 'html.parser')
         current_week = int(wk_soup.find("div", class_="primary-heading-subheading").find("h1").string.strip().split(" ")[-1])
@@ -61,4 +61,4 @@ def crawl_pros(players):
 
         ros_soup = BeautifulSoup(ros_docs[pos], 'html.parser')
         execute(ros_soup, 'ros', players)
-    print "Done with FantasyPros"
+    # print "Done with FantasyPros"
