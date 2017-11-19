@@ -2,8 +2,8 @@
     header('Access-Control-Allow-Origin: *');
     $output = shell_exec('python main.py');
     if ($output == NULL){
-        echo "<pre>ERROR</pre>";
+        echo "ERROR";
     }
     else
-        echo "<pre>$output</pre>";
+        echo $output;
 ?>
