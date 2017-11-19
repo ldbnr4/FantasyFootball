@@ -136,5 +136,6 @@ def execute_main():
 try:
     with open(FILE_PATH) as file_:
         file_.close()
+        print "File already made today!"
 except IOError:
     execute_main()
