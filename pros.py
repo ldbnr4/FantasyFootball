@@ -28,7 +28,7 @@ def execute(soup, players, week=True):
 
 
 def crawl_pros(week):
-    print "Crawling FantasyPros' web pages..."
+    # print "Crawling FantasyPros' web pages..."
     for pos in POSITIONS:
         week_doc = requests.get(WEEK_URL % pos, stream=True).text
         wk_soup = BeautifulSoup(week_doc, 'html.parser')
@@ -44,4 +44,4 @@ def crawl_pros(week):
         if ros_players is None:
             ros_players = {}
         week['ros'] = execute(ros_soup, ros_players, False)
-    print "Done with FantasyPros"
+    # print "Done with FantasyPros"
