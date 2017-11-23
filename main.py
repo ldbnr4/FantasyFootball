@@ -98,9 +98,14 @@ def execute_main():
     crawl_pros(Week)
     # elapsed = timeit.default_timer() - start_time
     # print "That took about %.2f sec" % elapsed
+    output_dict = {}
+    for week in Week:
+        for player_name in Week[week]:
+            output_dict[week] = Week[week]
+            output_dict[week][player_name] = Week[week][player_name].toJSON()
 
     with open(FILE_PATH, 'w') as outfile:
-        json.dump(Week, outfile)
+        json.dump(output_dict, outfile)
         outfile.close()
     # print "Done with everything!"
 

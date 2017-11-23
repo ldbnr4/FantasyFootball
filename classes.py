@@ -1,5 +1,6 @@
 import json
 
+
 class Player:
     def __init__(self, name, position, team, opponent, owner):
         self.name = name
