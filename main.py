@@ -99,12 +99,8 @@ def execute_main():
     # elapsed = timeit.default_timer() - start_time
     # print "That took about %.2f sec" % elapsed
 
-    players_json_array = []
-    for week in Week:
-        for player in Week[week]:
-            players_json_array.append(Week[week][player].toJSON())
     with open(FILE_PATH, 'w') as outfile:
-        json.dump(players_json_array, outfile)
+        json.dump(Week, outfile)
         outfile.close()
     # print "Done with everything!"
 
