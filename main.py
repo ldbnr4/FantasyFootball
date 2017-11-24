@@ -100,9 +100,9 @@ def execute_main():
     # print "That took about %.2f sec" % elapsed
     output_dict = {}
     for week in Week:
+        output_dict[week] = []
         for player_name in Week[week]:
-            output_dict[week] = Week[week]
-            output_dict[week][player_name] = Week[week][player_name].toJSON()
+            output_dict[week].append(Week[week][player_name].toJSON())
 
     with open(FILE_PATH, 'w') as outfile:
         json.dump(output_dict, outfile)
