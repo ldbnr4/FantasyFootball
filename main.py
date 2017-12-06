@@ -25,7 +25,7 @@ def parse_position_team(position_team):
     return _position, _team
 
 
-FILE_PATH = "projections/done/scraped_%s.json" % datetime.datetime.now().strftime("%m_%d_%Y")
+FILE_PATH = "projections/scraped_%s.json" % datetime.datetime.now().strftime("%m_%d_%Y")
 NUM_PAGES = 27
 # Week dictionary
 Week = {}
