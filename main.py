@@ -11,7 +11,7 @@ from classes import Player
 
 #TODO: add statSeason=2016 to the end of nlf url for historical data or https://partners.fantasypros.com/api/v1/nfl-stats.php?week=10&year=2017
 #TODO: look into duplicates of players when building dict
-from epsn import crawl_espn
+from espn import crawl_espn
 from number import crawl_number
 from pros import crawl_pros
 
@@ -62,7 +62,7 @@ def execute(soup, players):
 
 
 def execute_main():
-    # start_time = timeit.default_timer()
+    start_time = timeit.default_timer()
 
     # print "Crawling nfl's pages..."
     week_url = 'http://fantasy.nfl.com/league/6009432/players?playerStatus=all&position=O&statCategory=projectedStats' \
@@ -87,23 +87,24 @@ def execute_main():
         Week['ros'] = execute(ros_soup, ros_players)
         offset = (25 * i) + 26
     # print "Done with NFL!"
-    # elapsed = timeit.default_timer() - start_time
+    elapsed = timeit.default_timer() - start_time
     # print "That took about %.2f sec" % elapsed
 
-    # start_time = timeit.default_timer()
+    start_time = timeit.default_timer()
     crawl_number(Week)
-    # elapsed = timeit.default_timer() - start_time
+    elapsed = timeit.default_timer() - start_time
     # print "That took about %.2f sec" % elapsed
 
-    # start_time = timeit.default_timer()
+    start_time = timeit.default_timer()
     crawl_pros(Week)
-    # elapsed = timeit.default_timer() - start_time
+    elapsed = timeit.default_timer() - start_time
     # print "That took about %.2f sec" % elapsed
 
-    # start_time = timeit.default_timer()
+    start_time = timeit.default_timer()
     crawl_espn(Week)
-    # elapsed = timeit.default_timer() - start_time
+    elapsed = timeit.default_timer() - start_time
     # print "That took about %.2f sec" % elapsed
+
     output_dict = {}
     for week in Week:
         output_dict[week] = []
