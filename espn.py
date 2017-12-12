@@ -23,7 +23,7 @@ def execute(soup, players):
 def crawl_espn(week):
     # print "Crawling ESPN's week pages..."
     for i in range(0, 11):
-        week_doc = urllib2.urlopen(WEEK_URL % i * 40).read()
+        week_doc = urllib2.urlopen(WEEK_URL % (i * 40)).read()
         wk_soup = BeautifulSoup(week_doc, 'html.parser')
         # print wk_soup
         current_week = wk_soup.find("select", id="scoringPeriods").find("option", {"selected": "selected"}).string.strip().split(" ")[1]
