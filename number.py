@@ -34,7 +34,6 @@ def execute(soup, players):
 
 
 def crawl_number(week):
-    # print "Crawling NumberFire's week and rest of the season pages..."
     week_doc = urllib2.urlopen(WEEK_URL).read()
     ros_doc = urllib2.urlopen(ROS_URL).read()
 
@@ -50,4 +49,3 @@ def crawl_number(week):
         ros_players = {}
     ros_soup = BeautifulSoup(ros_doc, 'html.parser')
     week['ros'] = execute(ros_soup, ros_players)
-    # print "Done with NumberFire"

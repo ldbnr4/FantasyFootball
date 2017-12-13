@@ -21,7 +21,6 @@ def execute(soup, players):
 
 
 def crawl_espn(week):
-    # print "Crawling ESPN's week pages..."
     for i in range(0, 11):
         week_doc = urllib2.urlopen(WEEK_URL % (i * 40)).read()
         wk_soup = BeautifulSoup(week_doc, 'html.parser')
@@ -31,4 +30,3 @@ def crawl_espn(week):
         if wk_players is None:
             wk_players = {}
         week[current_week] = execute(wk_soup, wk_players)
-    # print "Done with ESPN"

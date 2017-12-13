@@ -12,6 +12,7 @@ class Player:
         self.number_fire = 0
         self.pros = 0
         self.espn = 0
+        self.cbs = 0
 
     def set_nfl(self, projection):
         self.nfl = float(projection)
@@ -24,6 +25,9 @@ class Player:
 
     def set_espn(self, projection):
         self.espn = float(projection)
+
+    def set_cbs(self, projection):
+        self.cbs = float(projection)
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,

@@ -6,10 +6,7 @@ from bs4 import BeautifulSoup
 POSITIONS = ['qb', 'rb', 'wr', 'te', 'k']
 
 WEEK_URL = 'https://www.fantasypros.com/nfl/projections/%s.php'
-WEEK_FILE = 'projections/pros/week/%s.html'
-
 ROS_URL = 'https://www.fantasypros.com/nfl/rankings/ros-%s.php'
-ROS_FILE = 'projections/pros/ros/%s.html'
 
 
 def execute(soup, players, week=True):

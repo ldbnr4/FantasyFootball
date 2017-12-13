@@ -7,6 +7,7 @@ import urllib2
 import datetime
 from bs4 import BeautifulSoup
 
+from cbs import crawl_cbs
 from classes import Player
 
 #TODO: add statSeason=2016 to the end of nlf url for historical data or https://partners.fantasypros.com/api/v1/nfl-stats.php?week=10&year=2017
@@ -64,7 +65,7 @@ def execute(soup, players):
 def execute_main():
     start_time = timeit.default_timer()
 
-    # print "Crawling nfl's pages..."
+    # print("Crawling NFL's pages...")
     week_url = 'http://fantasy.nfl.com/league/6009432/players?playerStatus=all&position=O&statCategory=projectedStats' \
                '&offset=%d'
     ros_url = "%s&statType=restOfSeasonProjectedStats" % week_url
@@ -86,23 +87,31 @@ def execute_main():
             ros_players = {}
         Week['ros'] = execute(ros_soup, ros_players)
         offset = (25 * i) + 26
-    # print "Done with NFL!"
-    elapsed = timeit.default_timer() - start_time
+    # elapsed = timeit.default_timer() - start_time
     # print "That took about %.2f sec" % elapsed
-
-    start_time = timeit.default_timer()
+    #
+    # print "Crawling NumberFire's week and rest of the season pages..."
+    # start_time = timeit.default_timer()
     crawl_number(Week)
-    elapsed = timeit.default_timer() - start_time
+    # elapsed = timeit.default_timer() - start_time
     # print "That took about %.2f sec" % elapsed
-
-    start_time = timeit.default_timer()
+    #
+    # print "Crawling FantasyPros' web pages..."
+    # start_time = timeit.default_timer()
     crawl_pros(Week)
-    elapsed = timeit.default_timer() - start_time
+    # elapsed = timeit.default_timer() - start_time
     # print "That took about %.2f sec" % elapsed
-
-    start_time = timeit.default_timer()
+    #
+    # print "Crawling ESPN's week pages..."
+    # start_time = timeit.default_timer()
     crawl_espn(Week)
-    elapsed = timeit.default_timer() - start_time
+    # elapsed = timeit.default_timer() - start_time
+    # print "That took about %.2f sec" % elapsed
+    #
+    # print "Crawling CBS' pages..."
+    # start_time = timeit.default_timer()
+    crawl_cbs(Week)
+    # elapsed = timeit.default_timer() - start_time
     # print "That took about %.2f sec" % elapsed
 
     output_dict = {}
