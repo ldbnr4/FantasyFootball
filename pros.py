@@ -25,20 +25,21 @@ def execute(soup, players, week=True):
 
 
 def crawl_pros(week):
-    # print "Crawling FantasyPros' web pages..."
-    for pos in POSITIONS:
-        week_doc = requests.get(WEEK_URL % pos, stream=True).text
-        wk_soup = BeautifulSoup(week_doc, 'html.parser')
-        current_week = wk_soup.find("div", class_="primary-heading-subheading").find("h1").string.strip().split(" ")[-1]
-        wk_players = week[current_week]
-        if wk_players is None:
-            wk_players = {}
-        week[current_week] = execute(wk_soup, wk_players)
+    try:
+        for pos in POSITIONS:
+            week_doc = requests.get(WEEK_URL % pos, stream=True).text
+            wk_soup = BeautifulSoup(week_doc, 'html.parser')
+            current_week = wk_soup.find("div", class_="primary-heading-subheading").find("h1").string.strip().split(" ")[-1]
+            wk_players = week[current_week]
+            if wk_players is None:
+                wk_players = {}
+            week[current_week] = execute(wk_soup, wk_players)
 
-        ros_doc = requests.get(ROS_URL % pos, stream=True).text
-        ros_soup = BeautifulSoup(ros_doc, 'html.parser')
-        ros_players = week['ros']
-        if ros_players is None:
-            ros_players = {}
-        week['ros'] = execute(ros_soup, ros_players, False)
-    # print "Done with FantasyPros"
+            ros_doc = requests.get(ROS_URL % pos, stream=True).text
+            ros_soup = BeautifulSoup(ros_doc, 'html.parser')
+            ros_players = week['ros']
+            if ros_players is None:
+                ros_players = {}
+            week['ros'] = execute(ros_soup, ros_players, False)
+    except Exception:
+        pass

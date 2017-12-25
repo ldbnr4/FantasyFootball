@@ -28,7 +28,7 @@ def parse_position_team(position_team):
 
 
 FILE_PATH = "projections/scraped_%s.json" % datetime.datetime.now().strftime("%m_%d_%Y")
-NUM_PAGES = 27
+NUM_PAGES = 26
 # Week dictionary
 Week = {}
 # Players dictionary
@@ -72,7 +72,8 @@ def execute_main():
     offset = 1
     for i in range(0, NUM_PAGES):
         # NFL week page
-        wk_web_page = urllib2.urlopen(week_url % offset).read()
+        url = week_url % offset
+        wk_web_page = urllib2.urlopen(url).read()
         week_soup = BeautifulSoup(wk_web_page, 'html.parser')
         current_week = week_soup.find("ul", class_="weekNav").find("li", class_="selected").find("span", class_="text").string
         week_players = Week.get(current_week)
@@ -93,6 +94,7 @@ def execute_main():
     # print "Crawling NumberFire's week and rest of the season pages..."
     # start_time = timeit.default_timer()
     crawl_number(Week)
+
     # elapsed = timeit.default_timer() - start_time
     # print "That took about %.2f sec" % elapsed
     #
@@ -110,6 +112,7 @@ def execute_main():
     #
     # print "Crawling CBS' pages..."
     # start_time = timeit.default_timer()
+
     crawl_cbs(Week)
     # elapsed = timeit.default_timer() - start_time
     # print "That took about %.2f sec" % elapsed
