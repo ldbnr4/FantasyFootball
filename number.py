@@ -3,12 +3,13 @@ import urllib2
 import re
 from bs4 import BeautifulSoup
 
-WEEK_URL = 'https://www.numberfire.com/nfl/fantasy/fantasy-football-projections'
+from classes import Player
 
+WEEK_URL = 'https://www.numberfire.com/nfl/fantasy/fantasy-football-projections'
 ROS_URL = 'https://www.numberfire.com/nfl/fantasy/remaining-projections'
 
 
-def execute(soup, players):
+def execute(soup, players, verbose=False):
     projections = {}
     for row in soup("tr", {"data-row-index": re.compile("\d+")}):
         current_index = int(row["data-row-index"])
@@ -21,8 +22,13 @@ def execute(soup, players):
             if name in players:
                 projections[current_index] = players[name]
             else:
-                # print "Number found and unknown player %s" % name
-                continue
+                if verbose and name is not None:
+                    print "Number found a player %s" % name
+                position_team = row.find("td", class_='player').find("a").nextSibling.split(",")
+                position = position_team[0][2:]
+                team = position_team[1][1:3]
+                projections[current_index] = Player(name, position, team, "N/A", "N/A")
+                players[name] = projections[current_index]
         else:
             if current_index in projections:
                 value = float(row.find("td", class_="nf_fp").string)
@@ -31,6 +37,15 @@ def execute(soup, players):
                 # Unknown player
                 continue
     return players
+
+
+def crawl_number_ros(players_map, verbose=False):
+    if verbose:
+        print "Crawling NumberFire..."
+    ros_doc = urllib2.urlopen(ROS_URL).read()
+    execute(BeautifulSoup(ros_doc, 'html.parser'), players_map, verbose)
+    if verbose:
+        print "Done!"
 
 
 def crawl_number(week):
