@@ -26,6 +26,7 @@ def execute_crawl(soup, players):
                 players[name].set_cbs(points)
             else:
                 # print "CBS found an unknown player %s" % name
+                # TODO: create a player
                 continue
     return players
 
@@ -44,11 +45,12 @@ def crawl_cbs(players_map, verbose):
         wk_players = players_map.get(current_week)
         if wk_players is None:
             wk_players = {}
-        players_map[current_week] = execute_crawl(wk_soup, wk_players)
+        execute_crawl(wk_soup, wk_players)
+        players_map[current_week] = wk_players
 
         ros_doc = requests.get(ROS_URL % pos, stream=True).text
         ros_soup = BeautifulSoup(ros_doc, 'html.parser')
-        ros_players = players_map['ros']
+        ros_players = players_map.get('ros')
         if ros_players is None:
             ros_players = {}
         players_map['ros'] = execute_crawl(ros_soup, ros_players)
