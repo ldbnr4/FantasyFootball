@@ -1,6 +1,6 @@
-import requests
-
 import re
+
+import requests
 from bs4 import BeautifulSoup
 
 from classes import Player
@@ -18,7 +18,7 @@ def execute(soup, players, position, week=True, verbose=False):
         if name not in players:
             if name is not None:
                 if verbose:
-                    print "Pros found a new player %s" % name
+                    print("Pros found a new player %s" % name)
                 team = row.find("a", class_="player-name").nextSibling
                 players[name] = Player(name, position, team, "N/A", "N/A")
         if week:
@@ -31,14 +31,14 @@ def execute(soup, players, position, week=True, verbose=False):
 
 def crawl_pros_draft(players_map, verbose=False):
     if verbose:
-        print "Crawling Fantasy Pros..."
+        print('Crawling Fantasy Pros...')
     for pos in POSITIONS:
-        print "crawling position: %s" % pos
+        print("crawling position: %s" % pos)
         ros_doc = requests.get(DRAFT_URL % pos, stream=True).text
         ros_soup = BeautifulSoup(ros_doc, 'html.parser')
         execute(ros_soup, players_map, pos, True, verbose)
     if verbose:
-        print "Done!"
+        print('Done!')
 
 
 def crawl_pros(week):

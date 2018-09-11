@@ -17,7 +17,7 @@ def get_latest_file(file_path):
     return sorted_files[len(sorted_files) - 1][1]
 
 
-def write_map_to_file(player_map, file_path):
+def write_draft_map_to_file(player_map, file_path):
     output_dict = []
     # for week in player_map:
     #     output_dict[week] = []
@@ -28,6 +28,25 @@ def write_map_to_file(player_map, file_path):
         player.set_deviation()
         player.set_smart_deviation()
         output_dict.append(player.to_json())
+
+    with open(file_path, 'w') as outfile:
+        json.dump(output_dict, outfile)
+        outfile.close()
+
+
+def write_scrape_map_to_file(player_maps, file_path):
+    output_dict = {}
+    for week in player_maps:
+        week_players = player_maps[week]
+        week_players_arr = []
+        for player_name in week_players:
+            player = week_players[player_name]
+            player.set_ave()
+            player.set_smart_ave()
+            player.set_deviation()
+            player.set_smart_deviation()
+            week_players_arr.append(player.to_json())
+        output_dict[week] = week_players_arr
 
     with open(file_path, 'w') as outfile:
         json.dump(output_dict, outfile)

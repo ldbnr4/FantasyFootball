@@ -1,6 +1,7 @@
-import urllib2
 
 import re
+from urllib import request
+
 from bs4 import BeautifulSoup
 
 from classes import Player
@@ -23,7 +24,7 @@ def execute(soup, players, verbose=False):
                 projections[current_index] = players[name]
             else:
                 if verbose and name is not None:
-                    print "Number found a player %s" % name
+                    print("Number found a player %s" % name)
                 position_team = row.find("td", class_='player').find("a").nextSibling.split(",")
                 position = position_team[0][2:]
                 team = position_team[1][1:3]
@@ -41,17 +42,17 @@ def execute(soup, players, verbose=False):
 
 def crawl_number_ros(players_map, verbose=False):
     if verbose:
-        print "Crawling NumberFire..."
-    ros_doc = urllib2.urlopen(ROS_URL).read()
+        print('Crawling NumberFire...')
+    ros_doc = request.urlopen(ROS_URL).read()
     execute(BeautifulSoup(ros_doc, 'html.parser'), players_map, verbose)
     if verbose:
-        print "Done!"
+        print('Done!')
 
 
 def crawl_number(week):
     try:
-        week_doc = urllib2.urlopen(WEEK_URL).read()
-        ros_doc = urllib2.urlopen(ROS_URL).read()
+        week_doc = request.urlopen(WEEK_URL).read()
+        ros_doc = request.urlopen(ROS_URL).read()
 
         wk_soup = BeautifulSoup(week_doc, 'html.parser')
         current_week = wk_soup.find("div", class_="projection-rankings__hed").find("h2").string.strip().split(" ")[1]

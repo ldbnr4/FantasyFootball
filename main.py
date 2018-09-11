@@ -4,16 +4,14 @@ import datetime
 import json
 
 from cbs import crawl_cbs
-
-#TODO: add statSeason=2016 to the end of nlf url for historical data or https://partners.fantasypros.com/api/v1/nfl-stats.php?week=10&year=2017
-#TODO: look into duplicates of players when building dict
-from espn import crawl_espn
-
 from cbs import crawl_cbs_draft
+# TODO: add statSeason=2016 to the end of nlf url for historical data or https://partners.fantasypros.com/api/v1/nfl-stats.php?week=10&year=2017
+# TODO: look into duplicates of players when building dict
+from espn import crawl_espn
 from nfl import crawl_nfl_season
 from number import crawl_number, crawl_number_ros
 from pros import crawl_pros, crawl_pros_draft
-from utils import write_map_to_file
+from utils import write_draft_map_to_file, write_scrape_map_to_file
 
 FILE_PATH = "projections/scraped_%s.json" % datetime.datetime.now().strftime("%m_%d_%Y")
 # Week dictionary
@@ -71,6 +69,7 @@ def execute_main():
 
 parser = argparse.ArgumentParser(description='Get fantasy projections.')
 parser.add_argument('-s', '--season', action='store_true', default=False)
+# parser.add_argument('-w', '--week', action='store', type=int, default=-1)
 parser.add_argument('-v', '--verbose', action='store_true', default=False)
 # parser.add_argument('integers', metavar='N', type=int, nargs='+',
 #                     help='an integer for the accumulator')
@@ -80,13 +79,19 @@ parser.add_argument('-v', '--verbose', action='store_true', default=False)
 
 args = parser.parse_args()
 verbose = args.verbose
+players_map = {}
+# week = args.week
 if args.season:
-    players_map = {}
     crawl_nfl_season(players_map, verbose=verbose)
     crawl_cbs_draft(players_map, verbose=verbose)
     crawl_number_ros(players_map, verbose)
     crawl_pros_draft(players_map, verbose)
-    write_map_to_file(players_map, 'season.json')
+    write_draft_map_to_file(players_map, 'season.json')
+else:
+    # crawl_nfl(players_map, verbose)
+    crawl_cbs(players_map, verbose)
+    write_scrape_map_to_file(players_map, 'scrape.json')
+
 # print args.season
 # try:
 #     scraped = open(FILE_PATH)
