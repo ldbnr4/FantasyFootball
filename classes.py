@@ -16,6 +16,7 @@ class Player:
         self.smart_ave = 0
         self.largest_deviation = 0
         self.smart_deviation = 0
+        self.espn = 0
 
     def set_nfl(self, projection):
         self.nfl = float(projection)
@@ -26,8 +27,15 @@ class Player:
     def set_pros(self, projection):
         self.pros = float(projection)
 
+    def set_espn(self, projection):
+        self.espn = float(projection)
+
     def set_cbs(self, projection):
         self.cbs = float(projection)
+
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
 
     def set_ave(self):
         values = [self.nfl, self.number_fire, self.pros, self.cbs]

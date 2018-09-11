@@ -9,10 +9,7 @@ from utils import POSITIONS
 DRAFT_URL = 'https://www.fantasypros.com/nfl/projections/%s.php?week=draft'
 
 WEEK_URL = 'https://www.fantasypros.com/nfl/projections/%s.php'
-WEEK_FILE = 'projections/pros/week/%s.html'
-
 ROS_URL = 'https://www.fantasypros.com/nfl/rankings/ros-%s.php'
-ROS_FILE = 'projections/pros/ros/%s.html'
 
 
 def execute(soup, players, position, week=True, verbose=False):
@@ -45,20 +42,21 @@ def crawl_pros_draft(players_map, verbose=False):
 
 
 def crawl_pros(week):
-    # print "Crawling FantasyPros' web pages..."
-    for pos in POSITIONS:
-        week_doc = requests.get(WEEK_URL % pos, stream=True).text
-        wk_soup = BeautifulSoup(week_doc, 'html.parser')
-        current_week = wk_soup.find("div", class_="primary-heading-subheading").find("h1").string.strip().split(" ")[-1]
-        wk_players = week[current_week]
-        if wk_players is None:
-            wk_players = {}
-        week[current_week] = execute(wk_soup, wk_players)
+    try:
+        for pos in POSITIONS:
+            week_doc = requests.get(WEEK_URL % pos, stream=True).text
+            wk_soup = BeautifulSoup(week_doc, 'html.parser')
+            current_week = wk_soup.find("div", class_="primary-heading-subheading").find("h1").string.strip().split(" ")[-1]
+            wk_players = week[current_week]
+            if wk_players is None:
+                wk_players = {}
+            week[current_week] = execute(wk_soup, wk_players)
 
-        ros_doc = requests.get(ROS_URL % pos, stream=True).text
-        ros_soup = BeautifulSoup(ros_doc, 'html.parser')
-        ros_players = week['ros']
-        if ros_players is None:
-            ros_players = {}
-        week['ros'] = execute(ros_soup, ros_players, False)
-    # print "Done with FantasyPros"
+            ros_doc = requests.get(ROS_URL % pos, stream=True).text
+            ros_soup = BeautifulSoup(ros_doc, 'html.parser')
+            ros_players = week['ros']
+            if ros_players is None:
+                ros_players = {}
+            week['ros'] = execute(ros_soup, ros_players, False)
+    except Exception:
+        pass

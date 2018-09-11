@@ -49,20 +49,21 @@ def crawl_number_ros(players_map, verbose=False):
 
 
 def crawl_number(week):
-    # print "Crawling NumberFire's week and rest of the season pages..."
-    week_doc = urllib2.urlopen(WEEK_URL).read()
-    ros_doc = urllib2.urlopen(ROS_URL).read()
+    try:
+        week_doc = urllib2.urlopen(WEEK_URL).read()
+        ros_doc = urllib2.urlopen(ROS_URL).read()
 
-    wk_soup = BeautifulSoup(week_doc, 'html.parser')
-    current_week = wk_soup.find("div", class_="projection-rankings__hed").find("h2").string.strip().split(" ")[1]
-    wk_players = week[current_week]
-    if wk_players is None:
-        wk_players = {}
-    week[current_week] = execute(wk_soup, wk_players)
+        wk_soup = BeautifulSoup(week_doc, 'html.parser')
+        current_week = wk_soup.find("div", class_="projection-rankings__hed").find("h2").string.strip().split(" ")[1]
+        wk_players = week[current_week]
+        if wk_players is None:
+            wk_players = {}
+        week[current_week] = execute(wk_soup, wk_players)
 
-    ros_players = week['ros']
-    if ros_players is None:
-        ros_players = {}
-    ros_soup = BeautifulSoup(ros_doc, 'html.parser')
-    week['ros'] = execute(ros_soup, ros_players)
-    # print "Done with NumberFire"
+        ros_players = week['ros']
+        if ros_players is None:
+            ros_players = {}
+        ros_soup = BeautifulSoup(ros_doc, 'html.parser')
+        week['ros'] = execute(ros_soup, ros_players)
+    except Exception:
+        pass

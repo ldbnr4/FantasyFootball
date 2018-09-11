@@ -3,16 +3,19 @@ import argparse
 import datetime
 import json
 
+from cbs import crawl_cbs
+
+#TODO: add statSeason=2016 to the end of nlf url for historical data or https://partners.fantasypros.com/api/v1/nfl-stats.php?week=10&year=2017
+#TODO: look into duplicates of players when building dict
+from espn import crawl_espn
+
 from cbs import crawl_cbs_draft
 from nfl import crawl_nfl_season
 from number import crawl_number, crawl_number_ros
 from pros import crawl_pros, crawl_pros_draft
 from utils import write_map_to_file
 
-# TODO: add statSeason=2016 to the end of nlf url for historical data or https://partners.fantasypros.com/api/v1/nfl-stats.php?week=10&year=2017
-# TODO: look into duplicates of players when building dict
-
-FILE_PATH = "projections/done/scraped_%s.json" % datetime.datetime.now().strftime("%m_%d_%Y")
+FILE_PATH = "projections/scraped_%s.json" % datetime.datetime.now().strftime("%m_%d_%Y")
 # Week dictionary
 Week = {}
 # Players dictionary
@@ -24,18 +27,36 @@ def execute_main():
     # print "Crawling nfl's pages..."
     crawl_nfl_season(Week)
     # print "Done with NFL!"
+
     # elapsed = timeit.default_timer() - start_time
     # print "That took about %.2f sec" % elapsed
-
+    #
+    # print "Crawling NumberFire's week and rest of the season pages..."
     # start_time = timeit.default_timer()
     crawl_number(Week)
+
     # elapsed = timeit.default_timer() - start_time
     # print "That took about %.2f sec" % elapsed
-
+    #
+    # print "Crawling FantasyPros' web pages..."
     # start_time = timeit.default_timer()
     crawl_pros(Week)
     # elapsed = timeit.default_timer() - start_time
     # print "That took about %.2f sec" % elapsed
+    #
+    # print "Crawling ESPN's week pages..."
+    # start_time = timeit.default_timer()
+    crawl_espn(Week)
+    # elapsed = timeit.default_timer() - start_time
+    # print "That took about %.2f sec" % elapsed
+    #
+    # print "Crawling CBS' pages..."
+    # start_time = timeit.default_timer()
+
+    crawl_cbs(Week)
+    # elapsed = timeit.default_timer() - start_time
+    # print "That took about %.2f sec" % elapsed
+
     output_dict = {}
     for week in Week:
         output_dict[week] = []
