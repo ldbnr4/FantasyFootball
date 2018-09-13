@@ -33,10 +33,10 @@ def execute_crawl(soup, players):
 
 def crawl_cbs(players_map, verbose):
     if verbose:
-        print("Crawling Fantasy Pros...")
+        print("Crawling CBS...")
     for pos in POSITIONS:
         if verbose:
-            print("On Fantasy Pros position: %s" % pos)
+            print("on CBS week position %s" % pos)
         url = WEEK_URL % pos
         week_doc = requests.get(url, stream=True).text
         wk_soup = BeautifulSoup(week_doc, 'html.parser')
@@ -48,14 +48,16 @@ def crawl_cbs(players_map, verbose):
         execute_crawl(wk_soup, wk_players)
         players_map[current_week] = wk_players
 
+        if verbose:
+            print("on CBS ros position %s" % pos)
         ros_doc = requests.get(ROS_URL % pos, stream=True).text
         ros_soup = BeautifulSoup(ros_doc, 'html.parser')
         ros_players = players_map.get('ros')
         if ros_players is None:
             ros_players = {}
         players_map['ros'] = execute_crawl(ros_soup, ros_players)
-        if verbose:
-            print("Done!")
+    if verbose:
+        print("Done with CBS!")
 
 
 def execute(soup, players_map, pos, verbose=False):

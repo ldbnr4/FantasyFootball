@@ -3,7 +3,7 @@ import os
 from stat import ST_MTIME, S_ISREG, ST_MODE
 
 POSITIONS = ['qb', 'rb', 'wr', 'te', 'k']
-
+CURRENT_YEAR = 2018
 
 def get_latest_file(file_path):
     # get all entries in the directory w/ stats
@@ -23,10 +23,6 @@ def write_draft_map_to_file(player_map, file_path):
     #     output_dict[week] = []
     for player_name in player_map:
         player = player_map[player_name]
-        player.set_ave()
-        player.set_smart_ave()
-        player.set_deviation()
-        player.set_smart_deviation()
         output_dict.append(player.to_json())
 
     with open(file_path, 'w') as outfile:
@@ -41,10 +37,6 @@ def write_scrape_map_to_file(player_maps, file_path):
         week_players_arr = []
         for player_name in week_players:
             player = week_players[player_name]
-            player.set_ave()
-            player.set_smart_ave()
-            player.set_deviation()
-            player.set_smart_deviation()
             week_players_arr.append(player.to_json())
         output_dict[week] = week_players_arr
 

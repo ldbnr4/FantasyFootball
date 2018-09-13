@@ -8,7 +8,7 @@ from cbs import crawl_cbs_draft
 # TODO: add statSeason=2016 to the end of nlf url for historical data or https://partners.fantasypros.com/api/v1/nfl-stats.php?week=10&year=2017
 # TODO: look into duplicates of players when building dict
 from espn import crawl_espn
-from nfl import crawl_nfl_season
+from nfl import crawl_nfl_season, crawl_nfl
 from number import crawl_number, crawl_number_ros
 from pros import crawl_pros, crawl_pros_draft
 from utils import write_draft_map_to_file, write_scrape_map_to_file
@@ -79,18 +79,21 @@ parser.add_argument('-v', '--verbose', action='store_true', default=False)
 
 args = parser.parse_args()
 verbose = args.verbose
-players_map = {}
+week_map = {}
 # week = args.week
 if args.season:
-    crawl_nfl_season(players_map, verbose=verbose)
-    crawl_cbs_draft(players_map, verbose=verbose)
-    crawl_number_ros(players_map, verbose)
-    crawl_pros_draft(players_map, verbose)
-    write_draft_map_to_file(players_map, 'season.json')
+    crawl_nfl_season(week_map, verbose=verbose)
+    crawl_cbs_draft(week_map, verbose=verbose)
+    crawl_number_ros(week_map, verbose)
+    crawl_pros_draft(week_map, verbose)
+    write_draft_map_to_file(week_map, 'season.json')
 else:
-    # crawl_nfl(players_map, verbose)
-    crawl_cbs(players_map, verbose)
-    write_scrape_map_to_file(players_map, 'scrape.json')
+    crawl_espn(week_map, verbose)
+    crawl_nfl(week_map, verbose)
+    crawl_cbs(week_map, verbose)
+    crawl_pros(week_map, verbose)
+    crawl_number(week_map, verbose)
+    write_scrape_map_to_file(week_map, 'scrape.json')
 
 # print args.season
 # try:

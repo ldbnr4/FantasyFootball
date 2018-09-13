@@ -21,6 +21,8 @@ WEEK_HOME_URL = "%s/league/6009432/players?playerStatus=all&position=O&statCateg
 ROS_URL = "%s&statType=restOfSeasonProjectedStats" % WEEK_URL
 NUM_PAGES = 27
 
+LOW_POINT_LIMIT = 10
+
 # BASE_FILE_PATH = "projections/nfl/"
 BASE_FILE_PATH = "."
 
@@ -40,7 +42,10 @@ def parse_position_team(position_team):
 
 
 def execute(soup, players):
+    global LOW_POINT_LIMIT
     for player_row in soup("tr", class_=re.compile("player-\d+")):
+        if LOW_POINT_LIMIT <= 0:
+            break
         name = player_row.find("a", class_="playerName").string
         # For standardization
         _buffer = name.split(" ")
@@ -61,9 +66,9 @@ def execute(soup, players):
         except ValueError:
             # Not playing this week
             continue
-        if projected_points == 0:
+        if projected_points <= 5:
             #TODO: log the offset
-            break
+            LOW_POINT_LIMIT -= 1
         # Add predictions
         player.set_nfl(projected_points)
     return players
@@ -97,6 +102,10 @@ def crawl_nfl(players_map, verbose=False):
         print('Crawling NFL...')
     week_url = "%s&statWeek=1" % WEEK_URL
     for i in range(0, NUM_PAGES):
+        if LOW_POINT_LIMIT <= 0:
+            if verbose:
+                print("LIMIT REACHED")
+            break
         if verbose:
             print("On NFL week page=%d" % i)
         # NFL week page
@@ -107,6 +116,11 @@ def crawl_nfl(players_map, verbose=False):
         if week_players is None:
             week_players = {}
         players_map[current_week] = execute(week_soup, week_players)
+
+        if LOW_POINT_LIMIT <= 0:
+            if verbose:
+                print("LIMIT REACHED")
+            break
 
         if verbose:
             print("On NFL ros page=%d" % i)
